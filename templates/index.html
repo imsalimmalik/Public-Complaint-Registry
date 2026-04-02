@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complaint Registry</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◆</span>
+      <h1>Complaint Registry</h1>
+    </div>
+    <nav class="auth-nav" id="authNav">
+      <button type="button" class="btn btn-ghost" id="btnShowLogin">Log in</button>
+      <button type="button" class="btn btn-primary" id="btnShowRegister">Sign up</button>
+    </nav>
+    <nav class="user-nav hidden" id="userNav">
+      <span class="user-label" id="userLabel"></span>
+      <span class="badge admin-badge hidden" id="adminBadge">Superuser</span>
+      <button type="button" class="btn btn-ghost" id="btnLogout">Log out</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <p class="lead">Submit complaints and track pending issues. Only a superuser account can change complaint status.</p>
+
+    <div id="message" class="message hidden" role="alert"></div>
+
+    <section id="sectionAuth" class="card">
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="login">Log in</button>
+        <button type="button" class="tab" data-tab="register">Sign up</button>
+      </div>
+      <form id="formLogin" class="form-panel active">
+        <label>Username <input name="username" autocomplete="username" required /></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required /></label>
+        <button type="submit" class="btn btn-primary">Log in</button>
+      </form>
+      <form id="formRegister" class="form-panel">
+        <label>Username <input name="username" autocomplete="username" required minlength="3" /></label>
+        <label>Email <input name="email" type="email" autocomplete="email" /></label>
+        <label>Password <input name="password" type="password" autocomplete="new-password" required minlength="8" /></label>
+        <button type="submit" class="btn btn-primary">Create account</button>
+      </form>
+    </section>
+
+    <section id="sectionApp" class="hidden">
+      <div class="grid">
+        <article class="card">
+          <h2>New complaint</h2>
+          <form id="formComplaint">
+            <label>Title <input name="title" required maxlength="255" /></label>
+            <label>Category
+              <select name="category" id="complaintCategory" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="Sanitation">Sanitation</option>
+                <option value="Street light issue">Street light issue</option>
+                <option value="Water supply">Water supply</option>
+                <option value="Garbage / waste collection">Garbage / waste collection</option>
+                <option value="Roads / potholes">Roads / potholes</option>
+                <option value="Drainage / flooding">Drainage / flooding</option>
+                <option value="Noise complaint">Noise complaint</option>
+                <option value="Illegal construction / encroachment">Illegal construction / encroachment</option>
+                <option value="Parks / public spaces">Parks / public spaces</option>
+                <option value="Public transport">Public transport</option>
+                <option value="Stray animals">Stray animals</option>
+                <option value="__other__">Others</option>
+              </select>
+            </label>
+            <label id="categoryOtherWrap" class="category-other-wrap hidden">
+              Specify category
+              <input type="text" name="category_other" id="categoryOther" maxlength="100" placeholder="Briefly describe the issue type" autocomplete="off" />
+            </label>
+            <label>Description <textarea name="description" rows="5" required></textarea></label>
+            <label class="file-label">Photo (optional) <input name="image" type="file" accept="image/*" /></label>
+            <button type="submit" class="btn btn-primary">Submit complaint</button>
+          </form>
+        </article>
+
+        <article class="card">
+          <h2>My complaints</h2>
+          <ul class="complaint-list" id="listMine"></ul>
+          <p class="empty-hint hidden" id="emptyMine">You have not submitted any complaints yet.</p>
+        </article>
+      </div>
+
+      <article class="card card-pending">
+        <h2>All pending complaints</h2>
+        <p class="subtle">Every logged-in user can see open issues. Only superusers can change status.</p>
+        <ul class="complaint-list complaint-list-wide" id="listPending"></ul>
+        <p class="empty-hint hidden" id="emptyPending">No pending complaints.</p>
+        <div class="pending-actions">
+          <button type="button" id="btnLoadMore" class="btn btn-ghost hidden">Load more</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>Complaint Registry — development server</small>
+  </footer>
+
+  <div id="imageModal" class="image-modal hidden" role="dialog" aria-modal="true" aria-label="Enlarged photo">
+    <div class="image-modal-backdrop" id="imageModalBackdrop"></div>
+    <button type="button" class="image-modal-close" id="imageModalClose" aria-label="Close">×</button>
+    <img id="imageModalImg" class="image-modal-img" src="" alt="" />
+  </div>
+
+  <script src="{% static 'js/app.js' %}?v={% now 'U' %}"></script>
+</body>
+</html>
