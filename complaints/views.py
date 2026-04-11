@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from django.db import transaction
 from .dynamodb import table, votes_table
 from django.core.files.storage import default_storage
+from .sns_utils import send_sns_notification
 
 from .models import Complaint, ComplaintVote
 from .permissions import IsSuperUser
@@ -80,7 +81,26 @@ class ComplaintCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         complaint = serializer.save(created_by=self.request.user)
 
-        # Sync with DynamoDB
+        # 🔔 SNS Notification
+        try:
+            username = self.request.user.username if self.request.user.is_authenticated else "Guest"
+
+            message = f"""
+🚨 New Complaint Alert
+
+User: {username}
+Title: {complaint.title}
+Category: {complaint.category}
+Status: {complaint.status}
+"""
+
+            print("SNS TRIGGERED")
+            send_sns_notification(message)
+
+        except Exception as e:
+            print("SNS ERROR:", e)
+
+        # ✅ Sync with DynamoDB
         try:
             item = {
                 "complaint_id": str(complaint.id),
@@ -93,12 +113,16 @@ class ComplaintCreateView(generics.CreateAPIView):
                 "created_at": complaint.created_at.isoformat()
             }
             if complaint.image:
-                item["image"] = complaint.image.name # Store relative path (e.g. 'complaints/file.jpg')
+                item["image"] = complaint.image.name
 
             table.put_item(Item=item)
+
         except Exception as e:
-            # We log the error but don't fail the request since SQLite save succeeded
             print(f"Error syncing to DynamoDB: {e}")
+
+
+
+
 
 
 class ComplaintListView(generics.ListAPIView):
